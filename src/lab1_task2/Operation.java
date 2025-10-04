@@ -31,11 +31,9 @@ public class Operation {
 		return date;
 	}
 	public int getSender() {
-		//exception if 0
 		return from;
 	}
 	public int getRecepient() {
-		//exception in 0
 		return to;
 	}
 }
