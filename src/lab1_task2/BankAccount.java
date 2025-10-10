@@ -8,13 +8,11 @@ public class BankAccount {
 	private int id;
 	private double balance;
 	private List<Operation> transactionHistory;
-	private boolean limitRule;
 	
 	BankAccount(int id) {
 		this.id = id;
 		this.balance = 0;
 		this.transactionHistory = new ArrayList<>();
-		this.limitRule = false;
 	}
 	
 	public int getId() {return id;}
@@ -34,7 +32,6 @@ public class BankAccount {
 			System.out.println(type + "|" + amount + "₽ | " + date);
 		}
 	}
-	public boolean getLimitRule() {return limitRule;}
 	
 	public void setId(int id) {
 		this.id = id;
