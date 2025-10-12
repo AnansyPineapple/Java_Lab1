@@ -163,8 +163,10 @@ public class MainPage {
 					try {
 						int recepientID = checkAccount(checkInt());
 						double amount_4 = checkDouble();
-						account.sending(amount_4, recepientID);
+						double commission = amount_4 * 0.0015;
+						account.sending(amount_4 + commission, recepientID);
 						retrieveAccount(recepientID).receiving(amount_4, account.getId());
+						System.out.println("Deduction of commission: " + commission + "₽");
 						System.out.println("Sending - " + amount_4 + "₽, current balance - " + account.getBalance() + "₽");
 					}
 					catch(IllegalArgumentException | IllegalStateException | NoSuchElementException e) {
