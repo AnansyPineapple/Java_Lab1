@@ -69,13 +69,13 @@ public class BankAccount {
 		if (this.balance < amount) {
 			throw new IllegalStateException("You cannot send more money that you own");
 		}
-		this.balance -= balance;
+		this.balance -= amount;
 		Transaction op = new Transaction(TransactionType.Sending, this.id, receiver, amount, LocalDate.now());
 		this.transactionHistory.add(op);
 	}
 	
 	public void receiving(double amount, int sender) {
-		this.balance += balance;
+		this.balance += amount;
 		Transaction op = new Transaction(TransactionType.Receiving, sender, this.id, amount, LocalDate.now());
 		this.transactionHistory.add(op);
 	}

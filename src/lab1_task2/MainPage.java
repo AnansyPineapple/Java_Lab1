@@ -2,6 +2,7 @@ package lab1_task2;
 
 import java.util.Scanner;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -58,7 +59,7 @@ public class MainPage {
 					}
 					break;
 				case 2:
-					int numberJ = 0; //will be read from json and deleted from here
+					int numberJ = accounts.size(); //will be read from json and deleted from here
 					int id_2 = numberJ + 1;
 					BankAccount account = new BankAccount(id_2);
 					accounts.add(account);
@@ -76,6 +77,8 @@ public class MainPage {
 							accountMenu(retrieveAccount(id_2));
 						case 2:
 							break;
+						default:
+							System.out.println("Incorrect number");
 					}
 					break;
 				case 3:
@@ -121,7 +124,7 @@ public class MainPage {
 	
 	public static void accountMenu(BankAccount account) {
 		while (true) {
-			System.out.println("===Account №" + account.getId() + "Menu===");
+			System.out.println("===Account №" + account.getId() + " Menu===");
 			System.out.println("1. Show balance");
 			System.out.println("2. Deposit");
 			System.out.println("3. Witdraw");
@@ -136,19 +139,19 @@ public class MainPage {
 					System.out.println("Current balance: " + account.getBalance() + "₽");
 					break;
 				case 2:
-					System.out.print("Enter the amount: ");
 					try {
+						System.out.print("Enter the amount: ");
 						double amount_2 = checkDouble();
 						account.deposit(amount_2);
-						System.out.print("Deposit - " + amount_2 + "₽, current balance - " + account.getBalance() + "₽");
+						System.out.println("Deposit - " + amount_2 + "₽, current balance - " + account.getBalance() + "₽");
 					}
 					catch (IllegalArgumentException e) {
 						System.out.println(e.getMessage() + "\n");
 					}
 					break;
 				case 3:
-					System.out.print("Enter the amount: ");
 					try {
+						System.out.print("Enter the amount: ");
 						double amount_3 = checkDouble();
 						account.withdraw(amount_3);
 						System.out.println("Withdraw - " + amount_3 + "₽, current balance - " + account.getBalance() + "₽");
@@ -158,10 +161,10 @@ public class MainPage {
 					}
 					break;
 				case 4:
-					System.out.print("Enter the account number of recepient: ");
-					System.out.print("Enter the amount: ");
 					try {
+						System.out.print("Enter the account number of recepient: ");
 						int recepientID = checkAccount(checkInt());
+						System.out.print("\nEnter the amount: ");
 						double amount_4 = checkDouble();
 						double commission = amount_4 * 0.0015;
 						account.sending(amount_4 + commission, recepientID);
@@ -174,53 +177,45 @@ public class MainPage {
 					}
 					break;
 				case 5:
+					boolean filtering = true;
 					TransactionType transactionType = null;
 					double amountMin = 0;
 					double amountMax = 0;
 					LocalDate dateMin = LocalDate.MIN;
 					LocalDate dateMax = LocalDate.MAX;
 					
-					String filterTransactionType = (transactionType != null) ? transactionType.toString() : "All";
-					
-					System.out.println("===Filters===");
-					System.out.println("1. Transaction type: " + filterTransactionType);
-					System.out.println("2. Amount: ");
-					if (amountMin == 0 && amountMax == 0) {
-						System.out.println("All");
-					}
-					else if (amountMin != 0 && amountMax == 0){
-						System.out.println(amountMin + "₽ - Any");
-					}
-					else if (amountMin == 0 && amountMax != 0){
-						System.out.println("0₽ - " + amountMax + "₽");
-					}
-					else if (amountMin == amountMax) {
-						System.out.println(amountMin + "₽");
-					}
-					else {
-						System.out.println(amountMin + "₽ - " + amountMax + "₽");
-					}
-					System.out.println("3. Date: ");
-					if (dateMin == LocalDate.MIN && dateMax == LocalDate.MAX) {
-						System.out.println("All");
-					}
-					else if (dateMin != LocalDate.MIN && dateMax == LocalDate.MAX){
-						System.out.println("After " + dateMin.minusDays(1));
-					}
-					else if (dateMin == LocalDate.MIN && dateMax != LocalDate.MAX){
-						System.out.println("Before " + dateMax.plusDays(1));
-					}
-					else if (dateMin == dateMax) {
-						System.out.println(dateMin);
-					}
-					else {
-						System.out.println(dateMin + " - " + dateMax);
-					}
-					System.out.println("4. Apply filters");
-					
-					int currentFilter = checkInt();
-					
-					switch (currentFilter) {
+					while (filtering) {
+						String filterTransactionType = (transactionType != null) ? transactionType.toString() : "All";
+						System.out.println("===Filters===");
+						System.out.println("1. Transaction type: " + filterTransactionType);
+						System.out.print("2. Amount: ");
+						if (amountMin == 0 && amountMax == 0) {
+							System.out.println("All");
+						} else if (amountMin != 0 && amountMax == 0) {
+							System.out.println(amountMin + "₽ - Any");
+						} else if (amountMin == 0 && amountMax != 0) {
+							System.out.println("0₽ - " + amountMax + "₽");
+						} else if (amountMin == amountMax) {
+							System.out.println(amountMin + "₽");
+						} else {
+							System.out.println(amountMin + "₽ - " + amountMax + "₽");
+						}
+						System.out.print("3. Date: ");
+						if (dateMin == LocalDate.MIN && dateMax == LocalDate.MAX) {
+							System.out.println("All");
+						} else if (dateMin != LocalDate.MIN && dateMax == LocalDate.MAX) {
+							System.out.println("After " + dateMin.minusDays(1));
+						} else if (dateMin == LocalDate.MIN && dateMax != LocalDate.MAX) {
+							System.out.println("Before " + dateMax.plusDays(1));
+						} else if (dateMin == dateMax) {
+							System.out.println(dateMin);
+						} else {
+							System.out.println(dateMin + " - " + dateMax);
+						}
+						System.out.println("4. Apply filters");
+						System.out.println("5. Return to account menu");
+						int currentFilter = checkInt();
+						switch (currentFilter) {
 						case 1:
 							System.out.println("===Set type===");
 							System.out.println("1. Deposits");
@@ -228,26 +223,26 @@ public class MainPage {
 							System.out.println("3. Sendings");
 							System.out.println("4. Receivings");
 							System.out.println("5. Delete filter");
-							
+	
 							int choiceType = checkInt();
-							
+	
 							switch (choiceType) {
-								case 1:
-									transactionType = TransactionType.Deposit;
-									break;
-								case 2:
-									transactionType = TransactionType.Withdraw;
-									break;
-								case 3:
-									transactionType = TransactionType.Sending;
-									break;
-								case 4:
-									transactionType = TransactionType.Receiving;
-									break;
-								case 5:
-									transactionType = null;
-								default:
-									System.out.println("Incorrect number");
+							case 1:
+								transactionType = TransactionType.Deposit;
+								break;
+							case 2:
+								transactionType = TransactionType.Withdraw;
+								break;
+							case 3:
+								transactionType = TransactionType.Sending;
+								break;
+							case 4:
+								transactionType = TransactionType.Receiving;
+								break;
+							case 5:
+								transactionType = null;
+							default:
+								System.out.println("Incorrect number");
 							}
 							break;
 						case 2:
@@ -259,18 +254,16 @@ public class MainPage {
 								System.out.print("Min: ");
 								try {
 									setAmountMin = Double.parseDouble(sc.nextLine());
-								}
-								catch (NumberFormatException e) {
+								} catch (NumberFormatException e) {
 									setAmountMin = 0;
 								}
 								System.out.print("Max: ");
 								try {
 									setAmountMax = Double.parseDouble(sc.nextLine());
-								}
-								catch (NumberFormatException e) {
+								} catch (NumberFormatException e) {
 									setAmountMax = 0;
 								}
-								
+	
 								boolean appropriateRange = true;
 								String message = "";
 								if (setAmountMin < 0) {
@@ -285,11 +278,10 @@ public class MainPage {
 									appropriateRange = false;
 									message += "\nMinimum amount can't exceed maximum amount";
 								}
-								
+	
 								if (appropriateRange == false) {
-									System.out.print(message);
-								}
-								else {
+									System.out.print(message + "\n");
+								} else {
 									amountMin = setAmountMin;
 									amountMax = setAmountMax;
 									break;
@@ -305,18 +297,16 @@ public class MainPage {
 								System.out.print("Start date: ");
 								try {
 									setDateMin = LocalDate.parse(sc.nextLine());
-								}
-								catch (IllegalArgumentException e) {
+								} catch (DateTimeParseException e) {
 									setDateMin = LocalDate.MIN;
 								}
 								System.out.print("End date: ");
 								try {
 									setDateMax = LocalDate.parse(sc.nextLine());
-								}
-								catch (IllegalArgumentException e) {
+								} catch (DateTimeParseException e) {
 									setDateMax = LocalDate.MAX;
 								}
-								
+	
 								boolean appropriateRange = true;
 								String message = "";
 								if (setDateMin != LocalDate.MIN && setDateMin.isBefore(LocalDate.MIN)) {
@@ -327,15 +317,15 @@ public class MainPage {
 									appropriateRange = false;
 									message += "\nInappropriate end date";
 								}
-								if (setDateMin != LocalDate.MIN && setDateMax != LocalDate.MAX && setDateMin.isAfter(setDateMax)) {
+								if (setDateMin != LocalDate.MIN && setDateMax != LocalDate.MAX
+										&& setDateMin.isAfter(setDateMax)) {
 									appropriateRange = false;
 									message += "\nStart date can't be after the end date";
 								}
-								
+	
 								if (appropriateRange == false) {
-									System.out.print(message);
-								}
-								else {
+									System.out.print(message + "\n");
+								} else {
 									dateMin = setDateMin;
 									dateMax = setDateMax;
 									break;
@@ -343,17 +333,25 @@ public class MainPage {
 							}
 							break;
 						case 4:
-							if (transactionType == null && amountMin == 0 && amountMax == 0 && dateMin == LocalDate.MIN && dateMax == null) {
+							if (transactionType == null && amountMin == 0 && amountMax == 0 && dateMin == LocalDate.MIN
+									&& dateMax == null) {
 								account.getTransactionHistory();
-							}
-							else {
+							} else {
 								account.filterTransactions(transactionType, amountMin, amountMax, dateMin, dateMax);
 							}
 							break;
+						case 5:
+							filtering = false;
+							break;
+						default:
+							System.out.println("Incorrect number");
 						}
-					break;
+					}
+				break;
 				case 6:
 					return;
+				default:
+					System.out.println("Incorrect number");
 			}
 		}
 	}
