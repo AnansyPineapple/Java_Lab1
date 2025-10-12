@@ -1,8 +1,8 @@
 package lab1_task2;
 
-public enum OperationType {
+public enum TransactionType {
 	Deposit,
 	Withdraw,
-	Transaction,
+	Sending,
 	Receiving
 }
