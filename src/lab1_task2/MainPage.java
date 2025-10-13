@@ -193,8 +193,6 @@ public class MainPage {
 							System.out.println("All");
 						} else if (amountMin != 0 && amountMax == 0) {
 							System.out.println(amountMin + "₽ - Any");
-						} else if (amountMin == 0 && amountMax != 0) {
-							System.out.println("0₽ - " + amountMax + "₽");
 						} else if (amountMin == amountMax) {
 							System.out.println(amountMin + "₽");
 						} else {
@@ -225,7 +223,6 @@ public class MainPage {
 							System.out.println("5. Delete filter");
 	
 							int choiceType = checkInt();
-	
 							switch (choiceType) {
 							case 1:
 								transactionType = TransactionType.Deposit;
@@ -241,102 +238,121 @@ public class MainPage {
 								break;
 							case 5:
 								transactionType = null;
+								break;
 							default:
 								System.out.println("Incorrect number");
 							}
 							break;
 						case 2:
-							while (true) {
+							boolean filterAmount = true;
+							while (filterAmount) {
 								System.out.println("===Set amount range===");
-								System.out.println("To skip a min/max press enter");
-								double setAmountMin;
-								double setAmountMax;
-								System.out.print("Min: ");
-								try {
-									setAmountMin = Double.parseDouble(sc.nextLine());
-								} catch (NumberFormatException e) {
-									setAmountMin = 0;
-								}
-								System.out.print("Max: ");
-								try {
-									setAmountMax = Double.parseDouble(sc.nextLine());
-								} catch (NumberFormatException e) {
-									setAmountMax = 0;
-								}
-	
-								boolean appropriateRange = true;
-								String message = "";
-								if (setAmountMin < 0) {
-									appropriateRange = false;
-									message += "\nMinimum amount can't be less than zero";
-								}
-								if (setAmountMax < 0) {
-									appropriateRange = false;
-									message += "\nMaximum amount can't be less than zero";
-								}
-								if (setAmountMin > setAmountMax && setAmountMax != 0) {
-									appropriateRange = false;
-									message += "\nMinimum amount can't exceed maximum amount";
-								}
-	
-								if (appropriateRange == false) {
-									System.out.print(message + "\n");
-								} else {
-									amountMin = setAmountMin;
-									amountMax = setAmountMax;
+								System.out.println("1. Set Min: " + ((amountMin == 0) ? "None" : amountMin));
+								System.out.println("2. Set Max: " + ((amountMax == 0) ? "None" : amountMax));
+								System.out.println("3. Delete filters");
+								System.out.println("4. Return to filters menu");
+								double setAmountMin = amountMin;
+								double setAmountMax = amountMax;
+								
+								int choiceAmount = checkInt();
+								switch (choiceAmount) {
+								case 1:
+									try {
+										System.out.print("Enter min amount: ");
+										setAmountMin = Double.parseDouble(sc.nextLine());
+										if (setAmountMin < 0) {
+											throw new IllegalArgumentException();
+										}
+										amountMin = setAmountMin;
+									} catch (IllegalArgumentException e) {
+										setAmountMin = 0;
+										System.out.println("Min was set wrong and was deleted");
+									}
 									break;
+								case 2:
+									try {
+										System.out.print("Enter max amount: ");
+										setAmountMax = Double.parseDouble(sc.nextLine());
+										if (setAmountMax < 0) {
+											throw new IllegalArgumentException();
+										}
+										if (setAmountMin > setAmountMax && setAmountMax != 0) {
+											throw new IllegalStateException();
+										}
+										amountMax = setAmountMax;
+									} catch (IllegalArgumentException | IllegalStateException e) {
+										setAmountMax = 0;
+										System.out.println("Max was set wrong and was deleted");
+									}
+									break;
+								case 3:
+									amountMin = 0;
+									amountMax = 0;
+									break;
+								case 4:
+									filterAmount = false;
+									break;
+								default:
+									System.out.println("Incorrect number");
 								}
 							}
 							break;
 						case 3:
-							while (true) {
+							boolean filterDate = true;
+							while (filterDate) {
 								System.out.println("===Set date range===");
-								System.out.println("To skip a start/end press enter");
-								LocalDate setDateMin;
-								LocalDate setDateMax;
-								System.out.print("Start date: ");
-								try {
-									setDateMin = LocalDate.parse(sc.nextLine());
-								} catch (DateTimeParseException e) {
-									setDateMin = LocalDate.MIN;
-								}
-								System.out.print("End date: ");
-								try {
-									setDateMax = LocalDate.parse(sc.nextLine());
-								} catch (DateTimeParseException e) {
-									setDateMax = LocalDate.MAX;
-								}
-	
-								boolean appropriateRange = true;
-								String message = "";
-								if (setDateMin != LocalDate.MIN && setDateMin.isBefore(LocalDate.MIN)) {
-									appropriateRange = false;
-									message += "\nInappropriate start date";
-								}
-								if (setDateMax != LocalDate.MAX && setDateMax.isBefore(LocalDate.MIN)) {
-									appropriateRange = false;
-									message += "\nInappropriate end date";
-								}
-								if (setDateMin != LocalDate.MIN && setDateMax != LocalDate.MAX
-										&& setDateMin.isAfter(setDateMax)) {
-									appropriateRange = false;
-									message += "\nStart date can't be after the end date";
-								}
-	
-								if (appropriateRange == false) {
-									System.out.print(message + "\n");
-								} else {
-									dateMin = setDateMin;
-									dateMax = setDateMax;
-									break;
+								System.out.println("1. Start date: " + ((dateMin == LocalDate.MIN) ? "None" : dateMin));
+								System.out.println("2. End date: " + ((dateMax == LocalDate.MAX) ? "None" : dateMax));
+								System.out.println("3. Delete filters");
+								System.out.println("4. Return to filters menu");
+								LocalDate setDateMin = dateMin;
+								LocalDate setDateMax = dateMax;
+								
+								int choiceDate = checkInt();
+								switch (choiceDate) {
+									case 1:
+										try {
+											System.out.print("Enter start date as yyyy-MM-dd: ");
+											setDateMin = LocalDate.parse(sc.nextLine());
+											dateMin = setDateMin;
+											if (setDateMax != LocalDate.MAX && setDateMin.isAfter(setDateMax)) {
+												throw new IllegalStateException();
+											}
+										} catch (DateTimeParseException | IllegalStateException e) {
+											setDateMin = LocalDate.MIN;
+											System.out.println("Start date was set wrong and was deleted");
+										}
+										break;
+									case 2:
+										try {
+											System.out.print("Enter end date as yyyy-MM-dd: ");
+											setDateMax = LocalDate.parse(sc.nextLine());
+											dateMax = setDateMax;
+											if (setDateMax != LocalDate.MAX && setDateMin.isAfter(setDateMax)) {
+												throw new IllegalStateException();
+											}
+										} catch (DateTimeParseException | IllegalStateException e) {
+											setDateMax = LocalDate.MAX;
+											System.out.println("End date was set wrong and was deleted");
+										}
+										break;
+									case 3:
+										dateMin = LocalDate.MIN;
+										dateMax = LocalDate.MAX;
+										filterDate = false;
+									case 4:
+										filterDate = false;
+										break;
+									default:
+										System.out.println("Incorrect number");
 								}
 							}
 							break;
 						case 4:
-							if (transactionType == null && amountMin == 0 && amountMax == 0 && dateMin == LocalDate.MIN
-									&& dateMax == null) {
+							if (transactionType == null && amountMin == 0 && amountMax == 0 && dateMin == LocalDate.MIN && dateMax == null) {
 								account.getTransactionHistory();
-							} else {
+							} 
+							else {
 								account.filterTransactions(transactionType, amountMin, amountMax, dateMin, dateMax);
 							}
 							break;
