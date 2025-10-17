@@ -1,8 +1,13 @@
 package lab1_task2;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Transaction {
+public final class Transaction implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private TransactionType type;
 	private double amount;
 	private LocalDate date;
@@ -35,21 +40,5 @@ public class Transaction {
 	}
 	public int getRecepient() {
 		return to;
-	}
-	
-	public void setType(TransactionType type) {
-		this.type = type;
-	}
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
-	public void setSender(int from) {
-		this.from = from;
-	}
-	public void setRecepient(int to) {
-		this.to = to;
 	}
 }

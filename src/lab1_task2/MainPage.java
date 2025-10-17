@@ -61,7 +61,7 @@ public class MainPage {
 				case 2:
 					int numberJ = accounts.size(); //will be read from json and deleted from here
 					int id_2 = numberJ + 1;
-					BankAccount account = new BankAccount(id_2);
+					BankAccount account = new BankAccount(id_2, 0, null);
 					accounts.add(account);
 					//add to json
 					//rewrite numberJ in json
