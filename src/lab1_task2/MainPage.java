@@ -1,13 +1,14 @@
 package lab1_task2;
 
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
 
 public class MainPage {
-	static ArrayList<BankAccount> accounts = new ArrayList<BankAccount>();
+	@SuppressWarnings("unused")
+	private static int maxId;
+	private static ArrayList<BankAccount> accounts;
 	static Scanner sc = new Scanner(System.in);
 	
 	public static int checkInt() {
@@ -32,11 +33,67 @@ public class MainPage {
 		}
 	}
 	
+	public static int getIndex(int id) {
+		//different from indexOf because indexOf searches by link(?) while I check ids (not objects)
+		for (BankAccount account : accounts) {
+			if (account.getId() == id) {
+				return accounts.indexOf(account);
+			}
+		}
+		throw new NoSuchElementException("Account with this number was not found");
+	}
+	
+	public static int idExists(int id) {
+		//search in accounts and returns id or exception
+		for (BankAccount account : accounts) {
+			if (account.getId() == id) {
+				return account.getId();
+			}
+		}
+		throw new NoSuchElementException("Account with this number was not found");
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static void main(String args[ ]) {
-		//open - read from json file to accounts - read 1st numberJ = last accID
-        mainMenu();
+		try {
+			File data = new File("data.ser");
+			if (data.exists()) {
+				FileInputStream fileInput = new FileInputStream("data.ser");
+				try (ObjectInputStream objectInput = new ObjectInputStream(fileInput)) {
+					maxId = objectInput.readInt();
+					accounts = (ArrayList<BankAccount>) objectInput.readObject();
+				}
+			}
+			else {
+				data.createNewFile();
+				maxId = 0;
+				accounts = new ArrayList<BankAccount>();
+			}
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		finally {
+//			System.out.println(maxId + " " + accounts.size());
+			mainMenu();
+		}
     }
     
+	public static void save() {
+		try {
+		 FileOutputStream fileOutput = new FileOutputStream("data.ser");
+		 try (ObjectOutputStream objectOutput = new ObjectOutputStream(fileOutput)) {
+			objectOutput.writeInt(maxId);
+			 objectOutput.writeObject(accounts);
+			 fileOutput.flush();
+			 objectOutput.flush();
+		}
+		}
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	public static void mainMenu() {
 		while (true) {
 			System.out.println("===Main Menu===");
@@ -52,19 +109,18 @@ public class MainPage {
 					System.out.print("Enter the bank account number: ");
 					int id_1 = checkInt();
 					try {
-						accountMenu(retrieveAccount(id_1));
+						accountMenu(getIndex(id_1));
 					}
 					catch (NoSuchElementException e) {
 						System.out.println(e.getMessage() + "\n");
 					}
 					break;
 				case 2:
-					int numberJ = accounts.size(); //will be read from json and deleted from here
-					int id_2 = numberJ + 1;
+					int id_2 = maxId + 1;
 					BankAccount account = new BankAccount(id_2, 0, null);
+					maxId = account.getId();
 					accounts.add(account);
-					//add to json
-					//rewrite numberJ in json
+					save();
 					System.out.println("Account №" + id_2 + " was created successfuly");
 					System.out.println("\nWould you like to start working with this account?");
 					System.out.println("1. Yes");
@@ -74,7 +130,7 @@ public class MainPage {
 					
 					switch(startWorkChoice) {
 						case 1:
-							accountMenu(retrieveAccount(id_2));
+							accountMenu(getIndex(id_2));
 						case 2:
 							break;
 						default:
@@ -85,9 +141,8 @@ public class MainPage {
 					System.out.print("Enter the bank account number: ");
 					int id_3 = checkInt();
 					try {
-						//ask to proceed + notif. saving will be lost after
-						accounts.remove(retrieveAccount(id_3));
-						//remove from json
+						accounts.remove(getIndex(id_3));
+						save();
 						System.out.println("Account №" + id_3 + " was deleted successfuly");
 					}
 					catch (NoSuchElementException e) {
@@ -102,28 +157,9 @@ public class MainPage {
 		}
     }
 	
-	public static BankAccount retrieveAccount(int id) {
-		//search in accounts and return account or exception
-		for (BankAccount account : accounts) {
-			if (account.getId() == id) {
-				return account;
-			}
-		}
-		throw new NoSuchElementException("Account with this number was not found");
-	}
-	
-	public static int checkAccount(int id) {
-		//search in accounts and return account or exception
-		for (BankAccount account : accounts) {
-			if (account.getId() == id) {
-				return id;
-			}
-		}
-		throw new NoSuchElementException("Account with this number was not found");
-	}
-	
-	public static void accountMenu(BankAccount account) {
+	public static void accountMenu(int index) {
 		while (true) {
+			BankAccount account = accounts.get(index);
 			System.out.println("===Account №" + account.getId() + " Menu===");
 			System.out.println("1. Show balance");
 			System.out.println("2. Deposit");
@@ -142,8 +178,10 @@ public class MainPage {
 					try {
 						System.out.print("Enter the amount: ");
 						double amount_2 = checkDouble();
-						account.deposit(amount_2);
-						System.out.println("Deposit - " + amount_2 + "₽, current balance - " + account.getBalance() + "₽");
+						BankAccount newAccount = account.deposit(amount_2);
+						accounts.set(getIndex(account.getId()), newAccount);
+						System.out.println("Deposit - " + amount_2 + "₽, current balance - " + newAccount.getBalance() + "₽");
+						save();
 					}
 					catch (IllegalArgumentException e) {
 						System.out.println(e.getMessage() + "\n");
@@ -153,8 +191,10 @@ public class MainPage {
 					try {
 						System.out.print("Enter the amount: ");
 						double amount_3 = checkDouble();
-						account.withdraw(amount_3);
-						System.out.println("Withdraw - " + amount_3 + "₽, current balance - " + account.getBalance() + "₽");
+						BankAccount newAccount = account.withdraw(amount_3);
+						accounts.set(getIndex(account.getId()), newAccount);
+						System.out.println("Withdraw - " + amount_3 + "₽, current balance - " + newAccount.getBalance() + "₽");
+						save();
 					}
 					catch (IllegalArgumentException | IllegalStateException e) {
 						System.out.println(e.getMessage() + "\n");
@@ -163,14 +203,22 @@ public class MainPage {
 				case 4:
 					try {
 						System.out.print("Enter the account number of recepient: ");
-						int recepientID = checkAccount(checkInt());
-						System.out.print("\nEnter the amount: ");
+						int recepientId = idExists(checkInt());
+						System.out.print("Enter the amount: ");
 						double amount_4 = checkDouble();
+						
 						double commission = amount_4 * 0.0015;
-						account.sending(amount_4 + commission, recepientID);
-						retrieveAccount(recepientID).receiving(amount_4, account.getId());
+						
+						BankAccount newAccount = account.sending(amount_4 + commission, recepientId);
+						accounts.set(getIndex(account.getId()), newAccount);
+						
+						BankAccount recepient = accounts.get(getIndex(recepientId));
+						BankAccount newRecepient = recepient.receiving(amount_4, account.getId());
+						accounts.set(getIndex(recepient.getId()), newRecepient);
+						
 						System.out.println("Deduction of commission: " + commission + "₽");
-						System.out.println("Sending - " + amount_4 + "₽, current balance - " + account.getBalance() + "₽");
+						System.out.println("Sending - " + amount_4 + "₽, current balance - " + newAccount.getBalance() + "₽");
+						save();
 					}
 					catch(IllegalArgumentException | IllegalStateException | NoSuchElementException e) {
 						System.out.println(e.getMessage() + "\n");

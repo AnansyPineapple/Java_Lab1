@@ -16,7 +16,7 @@ public final class BankAccount implements Serializable {
 	
 	BankAccount(int id, double balance, List<Transaction> transactionHistory) {
 		this.id = id;
-		this.balance = 0;
+		this.balance = balance;
 		this.transactionHistory = new ArrayList<>(transactionHistory == null ? List.of() : transactionHistory);
 	}
 	
@@ -39,7 +39,7 @@ public final class BankAccount implements Serializable {
 			double amount = transaction.getAmount();
 			LocalDate date = transaction.getDate();
 			
-			System.out.println(type + " |" + amount + "₽ | " + date);
+			System.out.println(type + " | " + amount + "₽ | " + date);
 	}
 	
 	public BankAccount deposit(double amount) {
