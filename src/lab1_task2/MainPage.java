@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class MainPage {
-	@SuppressWarnings("unused")
 	private static int maxId;
 	private static ArrayList<BankAccount> accounts;
 	static Scanner sc = new Scanner(System.in);

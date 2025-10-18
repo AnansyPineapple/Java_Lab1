@@ -1,9 +1,8 @@
 package lab1_task2;
 
-import java.io.Serializable;
+import java.util.*;
+import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class BankAccount implements Serializable {
 	/**
