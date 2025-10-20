@@ -104,4 +104,8 @@ public final class BankAccount implements Serializable {
 			printTransaction(transaction);
 		}
 	}
+	
+	public String toString() {
+		return String.valueOf(id);
+	}
 }
