@@ -13,10 +13,10 @@ public final class BankAccount implements Serializable {
     /** Version of serialization */
     private static final long serialVersionUID = 1L;
     
-    /** Personal number of each account, unique within a file */
+    /** Personal identifier of each account, unique within a file */
     private int id;
     
-    /** Current balance */
+    /** Current balance, must be >= 0 */
     private double balance;
     
     /** List that contains history of transactions */
@@ -24,7 +24,7 @@ public final class BankAccount implements Serializable {
     
     /**
      * Constructor of bank account
-     * @param id id of account
+     * @param id identifier of account
      * @param balance current balance
      * @param transactionHistory history of transactions, if null an empty list will be used
      */
@@ -34,7 +34,7 @@ public final class BankAccount implements Serializable {
 	this.transactionHistory = new ArrayList<>(transactionHistory == null ? List.of() : transactionHistory);
     }
     
-    /** Returns id of account*/
+    /** Returns identifier */
     public int getId() {
 	return id;
     }
@@ -71,9 +71,9 @@ public final class BankAccount implements Serializable {
     }
     
     /** 
-     * Proceeds a deposit
+     * Processes a deposit
      * Returns new account due to immutability
-     * @param amount takes amount as input 
+     * @param amount amount to deposit, must be positive
      */
     public BankAccount deposit(double amount) {
 	// Truthify amount > 0 by throwing an exception if needed
@@ -93,9 +93,9 @@ public final class BankAccount implements Serializable {
     }
     
     /**
-     * Proceeds a withdrawal
+     * Processes a withdrawal
      * Returns new account due to immutability
-     * @param amount takes amount as input
+     * @param amount amount to withdraw, must be positive
      */
     public BankAccount withdraw(double amount) {
 	// Truthify amount > 0 by throwing an exception if needed
@@ -119,51 +119,103 @@ public final class BankAccount implements Serializable {
 	return new BankAccount(this.id, this.balance - amount, newTransactionHistory);
     }
 	
-    //here
-	public BankAccount sending(double amount, int receiver) {
-		if (amount <= 0) {
-			throw new IllegalArgumentException("You cannot send non-positive amount of money");
-		}
-		if (this.balance < amount) {
-			throw new IllegalStateException("You cannot send more money that you own");
-		}
-		Transaction op = new Transaction(TransactionType.Sending, this.id, receiver, amount, LocalDate.now());
-		List<Transaction> newTransactionHistory = new ArrayList<>(this.transactionHistory);
-		newTransactionHistory.add(op);
-		return new BankAccount(this.id, this.balance - amount, newTransactionHistory);
+    /**
+     * Processes a sending
+     * Returns new account due to immutability
+     * @param amount amount to send, must be positive
+     * @param recipient identifier of a recepient, already checked for existence
+     */
+    public BankAccount sending(double amount, int recipient) {
+	// Truthify amount > 0 by throwing an exception if needed
+	if (amount <= 0) {
+	    throw new IllegalArgumentException("You cannot send non-positive amount of money");
 	}
 	
-	public BankAccount receiving(double amount, int sender) {
-		Transaction op = new Transaction(TransactionType.Receiving, sender, this.id, amount, LocalDate.now());
-		List<Transaction> newTransactionHistory = new ArrayList<>(this.transactionHistory);
-		newTransactionHistory.add(op);
-		return new BankAccount(this.id, this.balance + amount, newTransactionHistory);
+	// Truthify amount does not exceeds current balance by throwing an exception if needed
+	if (this.balance < amount) {
+	    throw new IllegalStateException("You cannot send more money that you own");
 	}
 	
-	public ArrayList<Transaction> filterTransactions(TransactionType type, double amountMin, double amountMax, LocalDate dateMin, LocalDate dateMax) {
-	    List<Transaction> filteredTransactions = new ArrayList<>();
-	    for (Transaction transaction : transactionHistory) {
-		if (type != null && !type.equals(transaction.getType())) {
-		    continue;
-		}
-		if (amountMin != 0 && amountMin > transaction.getAmount()) {
-			continue;
-		}
-		if (amountMax != 0 && amountMax < transaction.getAmount()) {
-			continue;
-		}
-		if (dateMin != LocalDate.MIN && dateMin.isAfter(transaction.getDate())) {
-			continue;
-		}
-		if (dateMax != null && dateMax.isBefore(transaction.getDate())) {
-			continue;
-		}
-		filteredTransactions.add(transaction);
+	// Create new transaction
+	Transaction op = new Transaction(TransactionType.Sending, this.id, recipient, amount, LocalDate.now());
+	
+	// Rewrite old transaction history with adding new transaction
+	List<Transaction> newTransactionHistory = new ArrayList<>(this.transactionHistory);
+	newTransactionHistory.add(op);
+	
+	// Return new bank account
+	return new BankAccount(this.id, this.balance - amount, newTransactionHistory);
+    }
+    
+    /**
+     * Processes a receiving
+     * Returns new account due to immutability
+     * @param amount amount to receive, must be positive
+     * @param sender identifier of a sender, already checked for existence
+     */
+    public BankAccount receiving(double amount, int sender) {
+	// Create new transaction
+	Transaction op = new Transaction(TransactionType.Receiving, sender, this.id, amount, LocalDate.now());
+	
+	// Rewrite old transaction history with adding new transaction
+	List<Transaction> newTransactionHistory = new ArrayList<>(this.transactionHistory);
+	newTransactionHistory.add(op);
+	
+	// Return new bank account
+	return new BankAccount(this.id, this.balance + amount, newTransactionHistory);
+    }
+    
+    /**
+     * Filter transactions by given filters
+     * @param type transaction type, if null it will not be taken into account
+     * @param amountMin minimum amount for transactions, must be 0 to ignore this filter or more otherwise
+     * @param amountMax maximum amount for transactions, must be 0 to ignore this filter or more otherwise
+     * @param dateMin start date, must be equal to LocalDate.MIN to ignore or formatted as dd-MM-yyyy otherwise
+     * @param dateMax end date, must be equal to LocalDate.MAX to ignore or formatted as dd-MM-yyyy otherwise
+     * All boundary parameters are included into search
+     */
+    public ArrayList<Transaction> filterTransactions(TransactionType type, double amountMin, double amountMax, LocalDate dateMin, LocalDate dateMax) {
+	// Create matching results collection
+	List<Transaction> filteredTransactions = new ArrayList<>();
+	
+	// Check transaction against all active filters
+	for (Transaction transaction : transactionHistory) {
+	    // Skip if type does not match filter
+	    if (type != null && !type.equals(transaction.getType())) {
+		continue;
 	    }
-	    return (ArrayList<Transaction>) filteredTransactions;
+	    
+	    // Skip if minimum amount exceeds given
+	    if (amountMin != 0 && amountMin > transaction.getAmount()) {
+		continue;
+	    }
+	    
+	    // Skip if maximum amount exceeds given
+	    if (amountMax != 0 && amountMax < transaction.getAmount()) {
+		continue;
+	    }
+	    
+	    // Skip if start date is past given
+	    if (!dateMin.equals(LocalDate.MIN) && dateMin.isAfter(transaction.getDate())) {
+		continue;
+	    }
+	    
+	    // Skip if end date is before given
+	    if (!dateMax.equals(LocalDate.MAX) && dateMax.isBefore(transaction.getDate())) {
+		continue;
+	    }
+	    
+	    // Add to list if matches
+	    filteredTransactions.add(transaction);
 	}
 	
-	public String toString() {
-		return String.valueOf(id);
-	}
+	// Return list of matched transactions
+	return (ArrayList<Transaction>) filteredTransactions;
+    }
+    
+    /** String representation of account as its identifier */
+    @Override
+    public String toString() {
+	return String.valueOf(id);
+    }
 }
