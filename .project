@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>lib</name>
+			<type>2</type>
+			<location>D:/Eclipse program/Java programs/lab1_task2/lib</location>
+		</link>
+	</linkedResources>
 </projectDescription>
