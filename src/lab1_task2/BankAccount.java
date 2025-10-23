@@ -34,22 +34,22 @@ public final class BankAccount implements Serializable {
 	this.transactionHistory = new ArrayList<>(transactionHistory == null ? List.of() : transactionHistory);
     }
     
-    /** Returns identifier */
+    /** Return identifier */
     public int getId() {
 	return id;
     }
     
-    /** Returns current balance*/
+    /** Return current balance*/
     public double getBalance() {
 	return balance;
     }
     
-    /** Returns whole history of transactions */
+    /** Return whole history of transactions */
     public ArrayList<Transaction> getTransactionHistory() {
 	return (ArrayList<Transaction>) transactionHistory;
     }
     
-    /** Prints a single transaction */
+    /** Print a single transaction */
     public String printTransaction(Transaction transaction) {
 	// Convert transaction type into string
 	String type = transaction.getType().toString();
@@ -71,8 +71,8 @@ public final class BankAccount implements Serializable {
     }
     
     /** 
-     * Processes a deposit
-     * Returns new account due to immutability
+     * Process a deposit
+     * Return new account due to immutability
      * @param amount amount to deposit, must be positive
      */
     public BankAccount deposit(double amount) {
@@ -93,8 +93,8 @@ public final class BankAccount implements Serializable {
     }
     
     /**
-     * Processes a withdrawal
-     * Returns new account due to immutability
+     * Process a withdrawal
+     * Return new account due to immutability
      * @param amount amount to withdraw, must be positive
      */
     public BankAccount withdraw(double amount) {
@@ -120,8 +120,8 @@ public final class BankAccount implements Serializable {
     }
 	
     /**
-     * Processes a sending
-     * Returns new account due to immutability
+     * Process a sending
+     * Return new account due to immutability
      * @param amount amount to send, must be positive
      * @param recipient identifier of a recepient, already checked for existence
      */
@@ -148,8 +148,8 @@ public final class BankAccount implements Serializable {
     }
     
     /**
-     * Processes a receiving
-     * Returns new account due to immutability
+     * Process a receiving
+     * Return new account due to immutability
      * @param amount amount to receive, must be positive
      * @param sender identifier of a sender, already checked for existence
      */
@@ -168,7 +168,7 @@ public final class BankAccount implements Serializable {
     /**
      * Filter transactions by given filters
      * @param type transaction type, if null it will not be taken into account
-     * @param amountMin minimum amount for transactions, must be 0 to ignore this filter or more otherwise
+     * @param amountMin minimal amount for transactions, must be 0 to ignore this filter or more otherwise
      * @param amountMax maximum amount for transactions, must be 0 to ignore this filter or more otherwise
      * @param dateMin start date, must be equal to LocalDate.MIN to ignore or formatted as dd-MM-yyyy otherwise
      * @param dateMax end date, must be equal to LocalDate.MAX to ignore or formatted as dd-MM-yyyy otherwise
@@ -185,7 +185,7 @@ public final class BankAccount implements Serializable {
 		continue;
 	    }
 	    
-	    // Skip if minimum amount exceeds given
+	    // Skip if minimal amount exceeds given
 	    if (amountMin != 0 && amountMin > transaction.getAmount()) {
 		continue;
 	    }

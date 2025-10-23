@@ -10,21 +10,44 @@ import java.time.LocalDate;
 import javax.swing.*;
 import javax.swing.event.*;
 
+/**
+ * Class that manages bank accounts of a signle user
+ * @author Khismatullova Maria
+ * @version 1.0
+ */
 public class Manager{
+    /** Window of main menu
+     *  Provides management of all accounts
+     */
     static JFrame mainWindow;
     
+    /** Type of transactions for filtration */
     static TransactionType transactionType = null;
+    
+    /** Minimal amount for filtration */
     static double amountMin = 0;
+    
+    /** Maximum amount for filtration */
     static double amountMax = 0;
+    
+    /** Start date for filtration */
     static LocalDate dateMin = LocalDate.MIN;
+    
+    /** End date for filtration */
     static LocalDate dateMax = LocalDate.MAX;
     
+    /**
+     * Current maximum account number
+     * Used for account number assignment
+     */
     private static int maxId;
-    private static ArrayList<BankAccount> accounts;
-
-    static Scanner scanner = new Scanner(System.in);
     
+    /** Contain all user accounts */
+    private static ArrayList<BankAccount> accounts;
+    
+    /** Return index of account in collection according to given identifier */
     public static int getIndex(int id) {
+	// Sort accounts until match found
 	for (BankAccount account : accounts) {
 	    if (account.getId() == id) {
 		return accounts.indexOf(account);
@@ -33,7 +56,12 @@ public class Manager{
 	throw new NoSuchElementException("Account with this number was not found");
     }
     
+    /** 
+     * Return identifier of account in collection according to given identifier
+     * The purpose is to check whether account exists or not
+     */
     public static int accountExists(int id) {
+	// Sort accounts until match found
 	for (BankAccount account : accounts) {
 	    if (account.getId() == id) {
 		return account.getId();
@@ -42,35 +70,40 @@ public class Manager{
 	throw new NoSuchElementException("Account with this number was not found");
     }
     
-    //here
-    
+    /**
+     * Set the maxId and list of accounts
+     * Read information from existing file or creates new one otherwise
+     */
     @SuppressWarnings("unchecked")
     public static void main(String args[]) {
+	// Try to open the file
 	try {
 	    File dataFile = new File("data.ser");
+	    
+	    // Truthify existence of data by creating file and/or maxId and accounts
 	    if (dataFile.exists() && dataFile.length() > 0) {
 		FileInputStream fileInput = new FileInputStream("data.ser");
 		try (ObjectInputStream objectInput = new ObjectInputStream(fileInput)) {
 		    maxId = objectInput.readInt();
 		    accounts = (ArrayList<BankAccount>) objectInput.readObject();
-		    }
 		}
+	    }
 	    else {
 		if (!dataFile.exists()) {
 		    dataFile.createNewFile();
-		    }
+		}
 		maxId = 0;
 		accounts = new ArrayList<BankAccount>();
-		}
-	    } 
+	    }
+	    // Open menu only if maxId and accounts are defined
+	    mainMenu();
+	}
 	catch (Exception e) {
 	    System.out.println(e.getMessage());
-	    }
-	finally {
-	    mainMenu();
-	    }
 	}
+    }
     
+    /** Save information into the file */
     public static void save() {
 	try {
 	    FileOutputStream fileOutput = new FileOutputStream("data.ser");
@@ -79,210 +112,287 @@ public class Manager{
 		objectOutput.writeObject(accounts);
 		fileOutput.flush();
 		objectOutput.flush();
-		}
-	    }
-	catch (Exception e) {
-	    System.out.println(e.getMessage());
 	    }
 	}
+	catch (Exception e) {
+	    System.out.println(e.getMessage());
+	}
+    }
     
+    /**
+     * Create window of main menu
+     * Contain control buttons with their event handlers
+     */
     public static void mainMenu() {
+	// Create main window frame 350x270
 	mainWindow = new JFrame("Main Menu");
 	mainWindow.setSize(350, 270);
 	
+	// Create panel for buttons
 	JPanel mainWindowPanel = new JPanel();
 	mainWindowPanel.setLayout(new BoxLayout(mainWindowPanel, BoxLayout.Y_AXIS));
     	
+	// Create four menu buttons
     	JButton choose, create, delete, exit;
     	
+    	// Button to choose account 300x50
     	choose = new JButton("Choose bank account");
     	choose.setPreferredSize(new Dimension(300,50));
     	choose.setMaximumSize(new Dimension(300,50));
     	choose.setAlignmentX(Component.CENTER_ALIGNMENT);
     	choose.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Create new frame for selection
     		JFrame accountSelection = new JFrame("Select Account");
     		accountSelection.setLayout(new BorderLayout());
     		
+    		// Truthify accounts list contains information by showing message otherwise
     		if (accounts == null || accounts.isEmpty()) {
     		    JOptionPane.showMessageDialog(accountSelection, "You don't have any accounts", "Notification", JOptionPane.INFORMATION_MESSAGE);
-    		    return;
-    		    }
+		    return;
+    		}
     		else {
+    		    // Set selection frame size
     		    accountSelection.setPreferredSize(new Dimension(300, 165));
     		    
+    		    // Create main panel
     		    JPanel accountPanel = new JPanel(new FlowLayout());
     		    
+    		    // Visualise account list with fixed width, only one account can be picked
     		    JList<BankAccount> accountList = new JList<>(accounts.toArray(new BankAccount[0]));
-    		    accountList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    		    accountList.setFixedCellWidth(240);
-    		    
-    		    JScrollPane listScroller = new JScrollPane(accountList);
-    		    listScroller.setPreferredSize(new Dimension(280, 80));
-    		    listScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    		    
-    		    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    		    
-    		    JButton back = new JButton("Return");
-    		    back.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    			    accountSelection.dispose();
-    			    }
-    			});
-    		    
-    		    JButton select = new JButton("OK");
-    		    select.setEnabled(false);
-    		    select.addActionListener(new ActionListener() {
-    			public void actionPerformed(ActionEvent e) {
-    			    BankAccount selected = accountList.getSelectedValue();
-    			    accountSelection.dispose();
-    			    mainWindow.setVisible(false);
-    			    accountMenu(getIndex(selected.getId()));
-    			    }
-    			});
-    		    
-    		    accountList.addListSelectionListener(new ListSelectionListener() {
-    			public void valueChanged(ListSelectionEvent e) {
-    			    if (!e.getValueIsAdjusting()) {
-    				if (accountList.getSelectedIndex() == -1) {
-    				    select.setEnabled(false);
-    				    }
-    				else {
-    				    select.setEnabled(true);
-    				    }
-    				}
-    			    }
-    			});
-    		    
-    		    buttonPanel.add(select);
-    		    buttonPanel.add(back);
-    		    
-    		    accountPanel.add(listScroller, BorderLayout.CENTER);
-    		    accountPanel.add(buttonPanel, BorderLayout.SOUTH);
-    		    
-    		    accountSelection.add(accountPanel, BorderLayout.CENTER);
-    		    }
-    		accountSelection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    		accountSelection.setResizable(true);
-    		accountSelection.pack();
-    		accountSelection.setLocationRelativeTo(null);
-    		accountSelection.setVisible(true);
+		    accountList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		    accountList.setFixedCellWidth(240);
+		    
+		    // Create scroller 280x80, vertical bar appears only if accounts do not fit
+		    JScrollPane listScroller = new JScrollPane(accountList);
+		    listScroller.setPreferredSize(new Dimension(280, 80));
+		    listScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		    
+		    // Create panel for buttons located on the right side
+		    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		    
+		    // Create return button with event handler
+		    JButton back = new JButton("Return");
+		    back.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    // Close window if button is pressed
+			    accountSelection.dispose();
+			}
+		    });
+		    
+		    // Create selection button with event handler
+		    JButton select = new JButton("OK");
+		    
+		    // Cannot be pressed until an account is selected
+		    select.setEnabled(false);
+		    select.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    // Make a link to selected account 
+			    BankAccount selected = accountList.getSelectedValue();
+			    
+			    // Close current and main menu windows, open account window
+			    accountSelection.dispose();
+			    mainWindow.setVisible(false);
+			    accountMenu(getIndex(selected.getId()));
+			}
+		    });
+		    
+		    // Add listener to the list
+		    accountList.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+			    // Truthify an option is picked by enabling a select button
+			    if (!e.getValueIsAdjusting()) {
+				if (accountList.getSelectedIndex() == -1)  {
+				    select.setEnabled(false);
+				}
+				else {
+				    select.setEnabled(true);
+				}
+			    }
+			}
+		    });
+		    
+		    // Add buttons to the panel
+		    buttonPanel.add(select);
+		    buttonPanel.add(back);
+		    
+		    // Add scroller and button panel to the main panel with certain placement
+		    accountPanel.add(listScroller, BorderLayout.CENTER);
+		    accountPanel.add(buttonPanel, BorderLayout.SOUTH);
+		    
+		    // Add panel to the frame
+		    accountSelection.add(accountPanel, BorderLayout.CENTER);
     		}
-    	    });
+    		
+    		// Close window if cross is pressed
+    		accountSelection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    		
+    		// Place window in the center of the screen
+		accountSelection.setLocationRelativeTo(null);
+		
+		// Make window visible
+		accountSelection.setVisible(true);
+	    }
+    	});
     	
+    	// Button to create account 300x50
     	create = new JButton("Create bank account");
     	create.setPreferredSize(new Dimension(300,50));
     	create.setMaximumSize(new Dimension(300,50));
     	create.setAlignmentX(Component.CENTER_ALIGNMENT);
     	create.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Create new frame for creation
     		JFrame accountCreation = new JFrame();
-    		accountCreation.setLayout(new BorderLayout());
-    		
-    		int id = maxId + 1;
-    		BankAccount account = new BankAccount(id, 0, null);
-    		maxId = account.getId();
-    		accounts.add(account);
-    		save();
-    		
-    		String creationMessage = "Account №" + id + " was created successfuly";
-    		
-    		JOptionPane.showMessageDialog(accountCreation, creationMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
-		    return;
-    		}
-    	    });
+		accountCreation.setLayout(new BorderLayout());
+		
+		// Set identifier for new account
+		int id = maxId + 1;
+		
+		// Create account with zero balance and absence of transactions
+		BankAccount account = new BankAccount(id, 0, null);
+		
+		// Update data
+		maxId = account.getId();
+		accounts.add(account);
+		save();
+		
+		// Notify user about successful account creation
+		String creationMessage = "Account №" + id + " was created successfuly";
+		JOptionPane.showMessageDialog(accountCreation, creationMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
+		return;
+    	    }
+    	});
     	
+    	// Button to delete account 300x50
     	delete = new JButton("Delete bank account");
     	delete.setPreferredSize(new Dimension(300,50));
     	delete.setMaximumSize(new Dimension(300,50));
     	delete.setAlignmentX(Component.CENTER_ALIGNMENT);
     	delete.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Create new frame for deletion
     		JFrame accountDeletion = new JFrame("Select Account");
     		accountDeletion.setLayout(new BorderLayout());
     		
+    		// Truthify accounts list contains information by showing message otherwise
     		if (accounts == null || accounts.isEmpty()) {
-    		JOptionPane.showMessageDialog(accountDeletion, "You don't have any accounts", "Notification", JOptionPane.INFORMATION_MESSAGE);
-		    return;
-    		    }
+    		    JOptionPane.showMessageDialog(accountDeletion, "You don't have any accounts", "Notification", JOptionPane.INFORMATION_MESSAGE);
+    		    return;
+    		}
     		else {
+    		    // Set deletion frame size
     		    accountDeletion.setPreferredSize(new Dimension(300, 165));
     		    
+    		    // Crete main panel
     		    JPanel deletionPanel = new JPanel(new FlowLayout());
     		    
+    		    // Visualize account list with fixed width, only one account can be picked
     		    JList<BankAccount> deletionList = new JList<>(accounts.toArray(new BankAccount[0]));
     		    deletionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     		    deletionList.setFixedCellWidth(240);
     		    
+    		    // Create scroller 280x80, vertical bar appears only if accounts do not fit
     		    JScrollPane listScroller = new JScrollPane(deletionList);
     		    listScroller.setPreferredSize(new Dimension(280, 80));
     		    listScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     		    
+    		    // Create panel for buttons located on the right side
     		    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     		    
+    		    // Create return button with event handler
     		    JButton back = new JButton("Return");
     		    back.addActionListener(new ActionListener() {
     			public void actionPerformed(ActionEvent e) {
+    			    // Close window if button is pressed
     			    accountDeletion.dispose();
-    			    }
-    			});
+    			}
+    		    });
     		    
+    		    // Create deletion button with event handler
     		    JButton select = new JButton("Delete");
+    		    
+    		    // Cannot be pressed until an account is selected
     		    select.setEnabled(false);
     		    select.addActionListener(new ActionListener() {
     			public void actionPerformed(ActionEvent e) {
+    			    // Make a link to selected account
     			    BankAccount selected = deletionList.getSelectedValue();
     			    int id = selected.getId();
     			    
+    			    // Create options for further warning
     			    Object[] options = {"Proceed", "Return"};
+    			    
+    			    // Make a warning
     			    int choice = JOptionPane.showOptionDialog(accountDeletion, "If you delete this account, your money will be lost! \nDo you want to proceed?", 
     				    "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[1]);
     			    
+    			    // Truthify user answered positively by closing window otherwise
     			    if (choice == JOptionPane.YES_OPTION) {
+    				// Delete account from the list and update data
     				accounts.remove(getIndex(id));
-        			    	save();
-        			    	deletionList.setListData(accounts.toArray(new BankAccount[0]));
-        			    	
-        			    	String deletionMessage = "Account №" + id + " was deleted successfuly";
-        		    		
-        		    		JOptionPane.showMessageDialog(accountDeletion, deletionMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
-        		    		return;
+    				save();
+    				
+    				// Remove account from visible list instantly
+    				deletionList.setListData(accounts.toArray(new BankAccount[0]));
+    				
+    				// Notify user about successful account deletion
+    				String deletionMessage = "Account №" + id + " was deleted successfuly";
+    				JOptionPane.showMessageDialog(accountDeletion, deletionMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
+		    		return;
     			    }
     			    else {
     				return;
     			    }
-    			    }
-    			});
+    			}
+    		    });
     		    
+    		    
+    		    // Add listener to the list
     		    deletionList.addListSelectionListener(new ListSelectionListener() {
     			public void valueChanged(ListSelectionEvent e) {
+    			    // Truthify an option is picked by enabling a select button
     			    if (!e.getValueIsAdjusting()) {
     				if (deletionList.getSelectedIndex() == -1) {
     				    select.setEnabled(false);
-    				    }
+    				}
     				else {
     				    select.setEnabled(true);
-    				    }
     				}
     			    }
-    			});
+    			}
+    		    });
     		    
+    		    // Add buttons to the panel
     		    buttonPanel.add(select);
     		    buttonPanel.add(back);
     		    
+    		    // Add scroller and button panel to the main panel with certain placement
     		    deletionPanel.add(listScroller, BorderLayout.CENTER);
     		    deletionPanel.add(buttonPanel, BorderLayout.SOUTH);
     		    
+    		    // Add panel to the frame
     		    accountDeletion.add(deletionPanel, BorderLayout.CENTER);
-    		    }
-    		accountDeletion.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    		accountDeletion.setResizable(true);
-    		accountDeletion.pack();
-    		accountDeletion.setLocationRelativeTo(null);
-    		accountDeletion.setVisible(true);
     		}
-    	    });
+    		
+    		// Close window if cross is pressed
+    		accountDeletion.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    		
+    		// Disable the opportunity to resize the window
+    		accountDeletion.setResizable(false);
+    		
+    		// Resize the window if elements do not fit
+    		accountDeletion.pack();
+    		
+    		// Place window in the center of the screen
+    		accountDeletion.setLocationRelativeTo(null);
+    		
+    		// Make window visible
+    		accountDeletion.setVisible(true);
+    	    }
+    	});
     	
+    	//HERE
     	exit = new JButton("Exit");
     	exit.setPreferredSize(new Dimension(300,50));
     	exit.setMaximumSize(new Dimension(300,50));
@@ -332,7 +442,7 @@ public class Manager{
     	mainWindow.setResizable(false);
         mainWindow.setLocationRelativeTo(null);
         mainWindow.setVisible(true);
-        }
+    }
     
     public static void accountMenu(int index) {
 	JFrame accountWindow = new JFrame("Account №" + accounts.get(index).getId());

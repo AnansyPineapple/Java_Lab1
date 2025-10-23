@@ -55,23 +55,23 @@ public final class Transaction implements Serializable {
 	this.date = date;
     }
     
-    /** Returns transaction type */
+    /** Return transaction type */
     public TransactionType getType() {
 	return type;
     }
     
-    /** Returns amount of transaction */
+    /** Return amount of transaction */
     public double getAmount() {
 	return amount;
     }
     
-    /** Returns date of transaction */ 
+    /** Return date of transaction */ 
     public LocalDate getDate() {
 	return date;
     }
     
     /** 
-     * Returns sender
+     * Return sender
      * If one does not exist due to transaction type, it will return 0 as a marker
      */
     public int getSender() {
@@ -79,7 +79,7 @@ public final class Transaction implements Serializable {
     }
     
     /** 
-     * Returns recipient
+     * Return recipient
      * If one does not exist due to transaction type, it will return 0 as a marker
      */
     public int getRecipient() {
