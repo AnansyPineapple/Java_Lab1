@@ -227,6 +227,9 @@ public class Manager{
     		// Close window if cross is pressed
     		accountSelection.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     		
+    		// Resize the window if elements do not fit
+    		accountSelection.pack();
+    		
     		// Place window in the center of the screen
 		accountSelection.setLocationRelativeTo(null);
 		
@@ -392,17 +395,19 @@ public class Manager{
     	    }
     	});
     	
-    	//HERE
+    	// Button to exit the menu 300x50
     	exit = new JButton("Exit");
     	exit.setPreferredSize(new Dimension(300,50));
     	exit.setMaximumSize(new Dimension(300,50));
     	exit.setAlignmentX(Component.CENTER_ALIGNMENT);
     	exit.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Trigger window closure
     		mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
-    		}
-    	    });
+    	    }
+    	});
     	
+    	// Place buttons on the panel with spaces between them
     	mainWindowPanel.add(Box.createVerticalGlue());
     	mainWindowPanel.add(choose);
     	mainWindowPanel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -414,124 +419,198 @@ public class Manager{
     	mainWindowPanel.add(Box.createVerticalGlue());
     	mainWindow.getContentPane().add(BorderLayout.CENTER, mainWindowPanel);
     	
+    	// Change window closure procedure
     	mainWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     	mainWindow.addWindowListener(new WindowListener() {
     	    public void windowClosing(WindowEvent e) {
+    		// Create options for window closure
     		Object[] options = { "Yes", "No" };
-    		int choice = JOptionPane.showOptionDialog(e.getWindow(), "Close program?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,options[0]);
-    		if (choice == JOptionPane.YES_OPTION) {
-    		    save();
-    		    e.getWindow().setVisible(false);
-    		    System.exit(0);
-    		    }
-    		}
-    	    public void windowOpened(WindowEvent e) {
-    	    }
-    	    public void windowClosed(WindowEvent e) {
     		
+    		// Create option dialog
+		int choice = JOptionPane.showOptionDialog(e.getWindow(), "Close program?", "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,options[0]);
+		
+		// Truthify user answered positively by closing the window
+		if (choice == JOptionPane.YES_OPTION) {
+		    save();
+		    e.getWindow().setVisible(false);
+		    System.exit(0);
+		    }
     	    }
-    	    public void windowIconified(WindowEvent e) {
-    	    }
-    	    public void windowDeiconified(WindowEvent e) {
-    	    }
-    	    public void windowActivated(WindowEvent e) {
-    	    }
-    	    public void windowDeactivated(WindowEvent e) {
-    	    }
-    	    });
+    	    
+    	    //Methods that are required to be inherited
+	    public void windowOpened(WindowEvent e) {
+		
+	    }
+	    
+	    public void windowClosed(WindowEvent e) {
+		
+	    }
+	    
+	    public void windowIconified(WindowEvent e) {
+		
+	    }
+	    
+	    public void windowDeiconified(WindowEvent e) {
+		
+	    }
+	    
+	    public void windowActivated(WindowEvent e) {
+		
+	    }
+	    
+	    public void windowDeactivated(WindowEvent e) {
+		
+	    } 
+    	});
+    	
+    	// Disable the opportunity to resize the window
     	mainWindow.setResizable(false);
+    	
+    	// Place window in the center of the screen
         mainWindow.setLocationRelativeTo(null);
+        
+        // Make window visible
         mainWindow.setVisible(true);
     }
     
+    /**
+     * Create window of certain account menu
+     * Contain control buttons with their event handlers
+     * @param index index of account in the collection
+     */
     public static void accountMenu(int index) {
+	// Create account window frame 350x380
 	JFrame accountWindow = new JFrame("Account №" + accounts.get(index).getId());
 	accountWindow.setSize(350, 380);
 	
+	// Create panel for buttons
 	JPanel accountWindowPanel = new JPanel();
 	accountWindowPanel.setLayout(new BoxLayout(accountWindowPanel, BoxLayout.Y_AXIS));
     	
+	// Create six menu buttons
     	JButton balance, deposit, withdraw, transfer, transactions, backToMenu;
     	
+    	// Button to show balance 300x50
     	balance = new JButton("Show balance");
     	balance.setPreferredSize(new Dimension(300,50));
     	balance.setMaximumSize(new Dimension(300,50));
     	balance.setAlignmentX(Component.CENTER_ALIGNMENT);
     	balance.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Update information about current account
     		BankAccount account = accounts.get(index);
     		
+    		// Create new frame for showing balance 250x100
     		JFrame balanceDemo = new JFrame("Balance");
     		balanceDemo.setPreferredSize(new Dimension(250, 100));
     		
+    		// Create panel for message
     		JPanel balanceMessagePanel = new JPanel();
     		balanceMessagePanel.setLayout(new BorderLayout());
     		
+    		// Create message with balance
     		String message = "Current balance: " + account.getBalance() + "₽";
     		JLabel balanceMessage = new JLabel(message, JLabel.CENTER);
     		
+    		// Create button panel
     		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     		
+    		// Create return button with handler and certain placement
     		JButton back = new JButton("Return");
     		back.setBounds(95, 70, 73, 30);
     		back.addActionListener(new ActionListener() {
     		    public void actionPerformed(ActionEvent e) {
+    			// Close window if button is pressed
     			balanceDemo.dispose();
-    			}
-    		    });
+    		    }
+    		});
     		
+    		// Add button to the panel
     		buttonPanel.add(back);
     		
+    		// Add message and button panel to the main panel with certain placement
     		balanceMessagePanel.add(balanceMessage, BorderLayout.CENTER);
     		balanceMessagePanel.add(buttonPanel, BorderLayout.SOUTH);
+    		
+    		// Add main panel to the frame
     		balanceDemo.add(balanceMessagePanel, BorderLayout.CENTER);
     		
+    		// Close window if cross is pressed
     		balanceDemo.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    		balanceDemo.setResizable(true);
+    		
+    		// Disable the opportunity to resize the window
+    		balanceDemo.setResizable(false);
+    		
+    		// Resize the window if elements do not fit
     		balanceDemo.pack();
+    		
+    		// Place the window in the center of the screen
     		balanceDemo.setLocationRelativeTo(null);
+    		
+    		// Make window visible
     		balanceDemo.setVisible(true);
     	    }
     	});
     	
+    	
+    	// Button to make a deposit 300x50
     	deposit = new JButton("Deposit");
     	deposit.setPreferredSize(new Dimension(300,50));
     	deposit.setMaximumSize(new Dimension(300,50));
     	deposit.setAlignmentX(Component.CENTER_ALIGNMENT);
     	deposit.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Update information about current account
     		BankAccount account = accounts.get(index);
     		
+    		// Create new frame for making a deposit 250x130
     		JFrame depositFrame = new JFrame("Deposit");
     		depositFrame.setPreferredSize(new Dimension(250, 130));
     		
+    		// Create main panel
     		JPanel depositPanel = new JPanel();
     		depositPanel.setLayout(new BorderLayout());
     		
+    		// Create text to explain the field with left placement
     		JLabel depositMessage = new JLabel("Enter the amount:", JLabel.LEFT);
+    		
+    		// Create the field to input the amount 200x25, with recommendation to enter 15 symbols
     		JTextField amountField = new JTextField(15);
     		amountField.setPreferredSize(new Dimension(200, 25));
     		
-    		JPanel mainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-    		mainPanel.add(depositMessage);
-    		mainPanel.add(amountField);
+    		// Create amount panel
+    		JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    		amountPanel.add(depositMessage);
+    		amountPanel.add(amountField);
     		
+    		// Create button panel
     		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     		
+    		// Create deposit button with event handler
     		JButton depositButton = new JButton("Deposit");
+    		
+    		// Disable deposit button
     		depositButton.setEnabled(false);
     	        depositButton.addActionListener(new ActionListener() {
     	            public void actionPerformed(ActionEvent e) {
+    	        		// Try to get the amount
     	                try {
+    	                    // Check the amount
     	                    String amountEntered = amountField.getText().trim();
     	                    double amountDeposit = Double.parseDouble(amountEntered);
+    	                    
+    	                    // Process the deposit
     	                    BankAccount newAccount = account.deposit(amountDeposit);
+    	                    
+    	                    // Update data
     	                    accounts.set(getIndex(account.getId()), newAccount);
     	                    save();
     	                    
+    	                    // Show information message
     	                    String depositMessage = "Deposit - " + amountDeposit + "₽, current balance - " + newAccount.getBalance() + "₽";
     	                    JOptionPane.showMessageDialog(depositFrame, depositMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
     	                }
+    	                // Catch an exception if happened (mostly for invalid amount)
     	                catch (IllegalArgumentException ex) {
     	                    JOptionPane.showMessageDialog(depositFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     	                }
@@ -539,13 +618,16 @@ public class Manager{
     	            }
     	        });
     		
+    	        // Deposit button cannot be pressed until amount is entered
     	        amountField.getDocument().addDocumentListener(new DocumentListener() {
 	            public void changedUpdate(DocumentEvent e) {
 	        		updateButtonState();
 	            }
+	            
 	            public void removeUpdate(DocumentEvent e) {
 	                updateButtonState();
 	            }
+	            
 	            public void insertUpdate(DocumentEvent e) {
 	                updateButtonState();
 	            }
@@ -556,74 +638,111 @@ public class Manager{
 	            }
 	        });
     	        
+    	        // Create return button with handler and certain placement
     		JButton back = new JButton("Return");
     		back.setBounds(95, 70, 73, 30);
     		back.addActionListener(new ActionListener() {
     		    public void actionPerformed(ActionEvent e) {
+    			// Close window if button is pressed
     			depositFrame.dispose();
-    			}
-    		    });
+    		    }
+    		});
     		
+    		// Add buttons to the panel
     		buttonPanel.add(depositButton);
     		buttonPanel.add(back);
     		
-    		depositPanel.add(mainPanel, BorderLayout.CENTER);
+    		// Add panels to the main panel with certain placement
+    		depositPanel.add(amountPanel, BorderLayout.CENTER);
     		depositPanel.add(buttonPanel, BorderLayout.SOUTH);
+    		
+    		// Add panel to the frame
     		depositFrame.add(depositPanel, BorderLayout.CENTER);
     		
+    		// Close window if cross is pressed
     		depositFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    		depositFrame.setResizable(true);
+    		
+    		// Disable the opportunity to resize the window
+    		depositFrame.setResizable(false);
+    		
+    		// Resize the window if elements do not fit
     		depositFrame.pack();
+    		
+    		// Place the window in the center of the screen
     		depositFrame.setLocationRelativeTo(null);
+    		
+    		// Make window visible
     		depositFrame.setVisible(true);
     	    }
     	});
     	
+    	// Button to make a withdrawal 300x50
     	withdraw = new JButton("Withdraw");
     	withdraw.setPreferredSize(new Dimension(300,50));
     	withdraw.setMaximumSize(new Dimension(300,50));
     	withdraw.setAlignmentX(Component.CENTER_ALIGNMENT);
     	withdraw.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Update information about current account
     		BankAccount account = accounts.get(index);
     		
+    		// Create new frame for making a deposit 250x130
     		JFrame withdrawFrame = new JFrame();
     		withdrawFrame.setPreferredSize(new Dimension(250, 130));
     		
+    		// Create main panel
     		JPanel withdrawPanel = new JPanel();
     		withdrawPanel.setLayout(new BorderLayout());
     		
+    		// Create text to explain the field with left placement
     		JLabel withdrawMessage = new JLabel("Enter the amount:", JLabel.LEFT);
+    		
+    		// Create the field to input the amount 200x25, with recommendation to enter 15 symbols
     		JTextField amountField = new JTextField(15);
     		amountField.setPreferredSize(new Dimension(200, 25));
     		
+    		// Create amount panel
     		JPanel mainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
     		mainPanel.add(withdrawMessage);
     		mainPanel.add(amountField);
     		
+    		// Create button panel
     		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     		
+    		// Create deposit button with event handler
     		JButton withdrawButton = new JButton("Withdraw");
+    		
+    		// Disable withdraw button
+    		withdrawButton.setEnabled(false);
     	        withdrawButton.addActionListener(new ActionListener() {
     	            public void actionPerformed(ActionEvent e) {
+    	        		// Try to get the amount
     	                try {
+    	                    // Check the amount
     	                    String amountEntered = amountField.getText().trim();
 	                    double amountWithdraw = Double.parseDouble(amountEntered);
+	                    
+	                    // Process the withdrawal
 	                    BankAccount newAccount = account.withdraw(amountWithdraw);
+	                    
+	                    // Update data
 	                    accounts.set(getIndex(account.getId()), newAccount);
 	                    save();
 	                    
+	                    // Show information message
 	                    String withdrawMessage = "Withdraw - " + amountWithdraw + "₽, current balance - " + newAccount.getBalance() + "₽";
 	                    JOptionPane.showMessageDialog(withdrawFrame, withdrawMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);
     	                }
+    	                // Catch an exception if happened (mostly for invalid amount)
     	                catch (IllegalArgumentException | IllegalStateException ex) {
     	                    JOptionPane.showMessageDialog(withdrawFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     	                }
     	                withdrawFrame.dispose();
     	            }
     	        });
-    		
-    	    amountField.getDocument().addDocumentListener(new DocumentListener() {
+    	        
+    	        // Withdraw button cannot be pressed until amount is entered
+    	        amountField.getDocument().addDocumentListener(new DocumentListener() {
 	            public void changedUpdate(DocumentEvent e) {
 	        		updateButtonState();
 	            }
@@ -640,117 +759,169 @@ public class Manager{
 	            }
 	        });
     	        
+    	        // Create return button with handler and certain placement
     		JButton back = new JButton("Return");
     		back.setBounds(95, 70, 73, 30);
     		back.addActionListener(new ActionListener() {
     		    public void actionPerformed(ActionEvent e) {
+    			// Close window if button is pressed
     			withdrawFrame.dispose();
-    			}
-    		    });
+    		    }
+    		});
     		
+    		// Add buttons to the panel
     		buttonPanel.add(withdrawButton);
     		buttonPanel.add(back);
     		
+    		// Add panels to the main panel with certain placement
     		withdrawPanel.add(mainPanel, BorderLayout.CENTER);
     		withdrawPanel.add(buttonPanel, BorderLayout.SOUTH);
+    		
+    		// Add panel to the frame
     		withdrawFrame.add(withdrawPanel, BorderLayout.CENTER);
     		
+    		// Close window if cross is pressed
     		withdrawFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    		withdrawFrame.setResizable(true);
+    		
+    		// Disable the opportunity to resize the window
+    		withdrawFrame.setResizable(false);
+    		
+    		// Resize the window if elements do not fit
     		withdrawFrame.pack();
+    		
+    		// Place the window in the center of the screen
     		withdrawFrame.setLocationRelativeTo(null);
+    		
+    		// Make window visible
     		withdrawFrame.setVisible(true);
     	    }
     	});
     	
+    	// Button to make a sending 300x50
     	transfer = new JButton("Transfer money");
     	transfer.setPreferredSize(new Dimension(300,50));
     	transfer.setMaximumSize(new Dimension(300,50));
     	transfer.setAlignmentX(Component.CENTER_ALIGNMENT);
     	transfer.addActionListener(new ActionListener() {
     	    public void actionPerformed(ActionEvent e) {
+    		// Update information about current account
     		BankAccount account = accounts.get(index);
     		
+    		// Create new frame for making a sending 300x195
     		JFrame transferFrame = new JFrame("Transfer money");
     		transferFrame.setPreferredSize(new Dimension(300, 195));
     		
+    		// Create main panel
     		JPanel transferPanel = new JPanel();
     	        transferPanel.setLayout(new BorderLayout());
     	        
+    	        // Create text to explain the field with left placement
     	        JLabel transferMessage = new JLabel("Choose the recepient:", JLabel.LEFT);
+    	        
+    	        // Create panel to choose the recipient
     	        JPanel recepientPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+    	        
+    	        // Add text to the panel
     	        recepientPanel.add(transferMessage);
     	        
+    	        // Create list of accounts to choose from without the current one
     	        ArrayList<BankAccount> otherAccounts = new ArrayList<>(accounts);
     	        otherAccounts.remove(account);
     	        
+    	        // Notify user if there are no other accounts and without opportunity to proceed
         	    	if (otherAccounts.isEmpty()) {
                     JOptionPane.showMessageDialog(transferFrame, "No accounts are available", "Notification", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
         	    	
+        	    	// Visualize list of possible recepients with fixed width, only one account can be picked
         	    	JList<BankAccount> recepientList = new JList<>(otherAccounts.toArray(new BankAccount[0]));
         	        recepientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         	        recepientList.setFixedCellWidth(240);
         	        
+        	        // Create scroller 280x80, vertical bar appears only if accounts do not fit
         	        JScrollPane listScroller = new JScrollPane(recepientList);
         	        listScroller.setPreferredSize(new Dimension(280, 80));
         	        listScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         	        
+        	        // Create amount panel
         	        JPanel amountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        	        
+        	        // Create text to explain the field with left placement
         	        JLabel amountLabel = new JLabel("Enter the amount:");
+        	        
+        	        // Create the field to input the amount 200x25, with recommendation to enter 15 symbols
         	        JTextField amountField = new JTextField(15);
         	        amountField.setPreferredSize(new Dimension(200, 25));
         	        
+        	        // Add text and field to the panel
         	        amountPanel.add(amountLabel);
         	        amountPanel.add(amountField);
         	        
+        	        // Create panel for list
         	        JPanel mainPanel = new JPanel();
         	        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        	        
+        	        // Add list and amount panel to this panel
         	        mainPanel.add(recepientPanel);
         	        mainPanel.add(listScroller);
         	        mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         	        mainPanel.add(amountPanel);
         	        
+        	        // Create button panel
         	        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         	        
+        	        // Create transfer button with event handler
         	        JButton transferButton = new JButton("Transfer");
+        	        
+        	        // Disable the button
         	        transferButton.setEnabled(false);
         	        transferButton.addActionListener(new ActionListener() {
         	            public void actionPerformed(ActionEvent e) {
+        	        		// Try to process the transfer
         	        		try {
+        	        		    // Get the recepient from the list
         	        		    BankAccount recepient = recepientList.getSelectedValue();
         	        		    int recepientId = recepient.getId();
         	        		    
+        	        		    // Check the amount
         	        		    String amountEntered = amountField.getText().trim();
         	        		    double amountTransfer = Double.parseDouble(amountEntered);
         	        		    
+        	        		    // Calculate the comission
         	        		    double commission = amountTransfer * 0.0015;
         	        		    double total = amountTransfer + commission;
         	        		    
+        	        		    // Process the transfer
         	        		    BankAccount newAccount = account.sending(total, recepientId);
         	        		    BankAccount newRecepient = recepient.receiving(amountTransfer, account.getId());
-        	        		    accounts.set(getIndex(account.getId()), newAccount);
-        	        		    accounts.set(getIndex(recepientId), newRecepient);
         	        		    
+        	        		    // Update data
+        	        		    accounts.set(getIndex(account.getId()), newAccount);
+        	        		    accounts.set(getIndex(recepientId), newRecepient);   
         	        		    save();
         	        		    
+        	        		    // Show information message
         	        		    String transferMessage = "Deduction of comission - " + commission + "₽ \n" + "Sending - " + amountTransfer + "₽, current balance - " + newAccount.getBalance() + "₽ ";
         	        		    JOptionPane.showMessageDialog(transferFrame, transferMessage, "Notification", JOptionPane.INFORMATION_MESSAGE);        
         	        		}
+        	        		// Catch an exception if happened (mostly for invalid amount)
         	        		catch (IllegalArgumentException | IllegalStateException | NoSuchElementException ex) {
         	        		    JOptionPane.showMessageDialog(transferFrame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         	        		}
         	            }
         	        });
         	        
+        	        // Create return button with handler and certain placement
         	        JButton back = new JButton("Return");
         	        back.addActionListener(new ActionListener() {
         	            public void actionPerformed(ActionEvent e) {
+        	        		// Close window if button is pressed
         	                transferFrame.dispose();
         	            }
         	        });
         	        
+        	        // First conditions to enable transfer button
         	        recepientList.addListSelectionListener(new ListSelectionListener() {
         	            public void valueChanged(ListSelectionEvent e) {
         	                if (!e.getValueIsAdjusting()) {
@@ -762,13 +933,16 @@ public class Manager{
         	            }
         	        });
         	        
+        	        // Second condition to enable transfer button
         	        amountField.getDocument().addDocumentListener(new DocumentListener() {
         	            public void changedUpdate(DocumentEvent e) {
         	                updateButtonState();
         	            }
+        	            
         	            public void removeUpdate(DocumentEvent e) {
         	                updateButtonState();
         	            }
+        	            
         	            public void insertUpdate(DocumentEvent e) {
         	                updateButtonState();
         	            }
@@ -780,21 +954,35 @@ public class Manager{
         	            }
         	        });
         	        
+        	        // Add buttons to the panel
         	        buttonPanel.add(transferButton);
         	        buttonPanel.add(back);
         	        
+        	        // Add panels to the main panel with certain placement
         	        transferPanel.add(mainPanel, BorderLayout.CENTER);
         	        transferPanel.add(buttonPanel, BorderLayout.SOUTH);
+        	        
+        	        // Add panel to the frame
         	        transferFrame.add(transferPanel, BorderLayout.CENTER);
         	        
+        	        // Close window if cross is pressed
         	        transferFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        	        transferFrame.setResizable(true);
+        	        
+        	        // Disable the opportunity to resize the window
+        	        transferFrame.setResizable(false);
+        	        
+        	        // Resize the window if elements do not fit
         	        transferFrame.pack();
+        	        
+        	        // Place the window in the center of the screen
         	        transferFrame.setLocationRelativeTo(null);
+        	        
+        	        // Make window visible
         	        transferFrame.setVisible(true);
     	    }
     	});
     	
+    	// HERE
     	transactions = new JButton("Display transactions");
     	transactions.setPreferredSize(new Dimension(300,50));
     	transactions.setMaximumSize(new Dimension(300,50));
@@ -1164,5 +1352,5 @@ public class Manager{
     	accountWindow.setResizable(false);
     	accountWindow.setLocationRelativeTo(null);
     	accountWindow.setVisible(true);
-	}
+    }
 }
